@@ -10,7 +10,6 @@ const helment = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 
-app.set('trust proxy', true);
 
 require('./startup/logging');
 require('./startup/db')();

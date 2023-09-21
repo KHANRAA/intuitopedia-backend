@@ -89,7 +89,7 @@ router.post('/add', apiLimiter, async (req, res, next) => {
 });
 
 
-router.post('/upload', apiLimiter, async (req, res, next) => {
+router.post('/upload', async (req, res, next) => {
     if (!req.file) {
         console.log(chalk.red('No file received..'));
         throw new Error('No image provided.....');

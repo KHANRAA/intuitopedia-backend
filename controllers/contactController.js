@@ -22,6 +22,7 @@ router.get('/', (req, res, next) => {
 const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minutes
     max: 15,
+    validate: {xForwardedForHeader: false},
     message: {message: 'Nice try , please try again after sometime ...', title: 'Too Many requests'}
 });
 
@@ -89,7 +90,7 @@ router.post('/add', apiLimiter, async (req, res, next) => {
 });
 
 
-router.post('/upload', async (req, res, next) => {
+router.post('/upload', rateLimit, async (req, res, next) => {
     if (!req.file) {
         console.log(chalk.red('No file received..'));
         throw new Error('No image provided.....');

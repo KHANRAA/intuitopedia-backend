@@ -81,7 +81,7 @@ router.post('/add', apiLimiter, async (req, res, next) => {
         imageUrl: uploadedImage,
     });
     await contact.save().then(() => {
-        return sendSuccessResponse(res, {type: 'Sucesss', message: 'Successfully saved contat information!'});
+        return sendSuccessResponse(res, {type: 'SUCCESS', message: 'Successfully saved contact information!'});
     }).catch((err) => {
         console.log(chalk.redBright(`${err.message}`));
         next(err);
@@ -149,7 +149,7 @@ router.put('/respond', apiLimiter, auth, admin, validateObjectId, async (req, re
 
 router.delete('/delete', auth, admin, validateObjectId, async (req, res, next) => {
     await Contact.findOneAndDelete({_id: req.body.data.id}).then(() => {
-        return sendSuccessResponse(res, {type: 'success', message: 'Successfully deleted contact'});
+        return sendSuccessResponse(res, {type: 'SUCCESS', message: 'Successfully deleted contact'});
     }).catch(err => {
         next(err);
     });

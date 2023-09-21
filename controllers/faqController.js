@@ -118,7 +118,7 @@ router.post('/add', apiLimiter, auth, admin, async (req, res, next) => {
         console.log(chalk.red(uploadedImage));
         next(error);
     })
-    return sendSuccessResponse(res, {type: 'success', data: faqSavedData});
+    return sendSuccessResponse(res, {type: 'SUCCESS', data: faqSavedData});
 
 
 });

@@ -44,7 +44,7 @@ router.post('/signup', apiLimiter, async (req, res, next) => {
                 message: 'User is not active  please email us for further help...'
             });
         }
-        if (user) return sendErrorResponse(res, {type: 'login', message: 'User is already exists please login....'});
+        if (user) return sendErrorResponse(res, {type: 'LOGIN', message: 'User is already exists please login....'});
         const password = await bcrypt.hash(passedData.password, salt);
         user = new User({
             name: passedData.name,
@@ -76,7 +76,7 @@ router.post('/login', apiLimiter, async (req, res, next) => {
         message: joiValidate.error.details[0].message
     });
     let user = await User.findOne({email: passedData.email.toLowerCase()});
-    if (!user) return sendErrorResponse(res, {type: 'signup', message: 'User is not registered please register...'});
+    if (!user) return sendErrorResponse(res, {type: 'SIGNUP', message: 'User is not registered please register...'});
     if (user && user.isSpam) return sendErrorResponse(res, {
         type: 'spam',
         message: 'User is banned for suspicious activity please contact us via email/phone ...'

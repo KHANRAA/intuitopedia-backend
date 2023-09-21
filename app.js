@@ -33,7 +33,7 @@ app.use(xss());
 
 const imageFileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './tmp');
+        cb(null, __dirname+'/uploads');
     },
     filename: (req, file, cb) => {
         cb(null, new Date().toISOString() + '-' + file.originalname);

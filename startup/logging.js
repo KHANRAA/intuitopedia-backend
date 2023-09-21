@@ -13,7 +13,7 @@ module.exports = () => {
     }));
 
     winston.add(new winston.transports.MongoDB({
-        db: 'mongodb+srv://intuitUser:intuitadmin@cluster0.6ci57.mongodb.net/tuitopedia?retryWrites=true&w=majority',
+        db: `${process.env.MONGO_DB_CONNECTION_STRING}`,
         level: 'error'
     }));
 

@@ -43,7 +43,10 @@ router.get('/all', apiLimiter, auth, admin, async (req, res, next) => {
 router.post('/add', apiLimiter, async (req, res, next) => {
     const contactData = req.body.data;
     const joiValidate = await validateContactSchema(contactData);
-    if (joiValidate.error) return sendErrorResponse(res, joiValidate.error.details[0].message);
+    if (joiValidate.error) return sendErrorResponse(res, {
+        type: 'VALIDATION',
+        message: joiValidate.error.details[0].message
+    });
     let uploadedImage = '';
     const imageIds = [contactData.imageId];
 
@@ -134,7 +137,6 @@ router.put('/respond', apiLimiter, auth, admin, validateObjectId, async (req, re
         isResponded: true,
         resolvedBy: user
     }).then(async (result) => {
-        console.log(chalk.blue(result));
         const baseEmailStructure = formatEmailData('iakashkhanra@gmail.com', 'TUITOPEDIA <no-reply@tuitopedia.com>', 'TUITOPEDIA RESOLVED');
         await mailGunClient.sendEmail(baseEmailStructure);
         sendSuccessResponse(res, {type: 'SUCCESS', message: 'Successfully responded to the contact...'});
@@ -157,7 +159,10 @@ router.delete('/delete', auth, admin, validateObjectId, async (req, res, next) =
 
 router.delete('/upload', apiLimiter, async (req, res, next) => {
     const joiValidate = await validateTempUploadDeleteSchema({id: req.body});
-    if (joiValidate.error) return sendErrorResponse(res, joiValidate.error.details[0].message);
+    if (joiValidate.error) return sendErrorResponse(res, {
+        type: 'VALIDATION',
+        message: joiValidate.error.details[0].message
+    });
     const storage = new Storage({keyFilename: '/Volumes/workplace/personal/dews-backend/config/inside-ngo-6bd73419e1d8.json'});
     const bucketName = 'tuitopedia-assets';
     const bucket = storage.bucket(bucketName);

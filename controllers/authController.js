@@ -2,10 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const chalk = require('chalk');
-const moment = require('moment');
 const _ = require('lodash');
-const wError = require('../middleware/error');
-const auth = require('../middleware/auth');
 const rateLimit = require("express-rate-limit");
 
 
@@ -74,10 +71,11 @@ router.post('/login', apiLimiter, async (req, res, next) => {
     }
     const passedData = req.body.data;
     const joiValidate = await validatePasswordLogin(passedData);
-    if (joiValidate.error) return sendErrorResponse(res, joiValidate.error.details[0].message);
-    console.log(chalk.green(`Received login request : ${JSON.stringify(passedData)}`));
+    if (joiValidate.error) return sendErrorResponse(res, {
+        type: 'signup',
+        message: joiValidate.error.details[0].message
+    });
     let user = await User.findOne({email: passedData.email.toLowerCase()});
-    console.log(chalk.cyan(user));
     if (!user) return sendErrorResponse(res, {type: 'signup', message: 'User is not registered please register...'});
     if (user && user.isSpam) return sendErrorResponse(res, {
         type: 'spam',
@@ -90,8 +88,7 @@ router.post('/login', apiLimiter, async (req, res, next) => {
 
         return sendErrorResponse(res, {
             type: 'active',
-            email: passedData.email.toLowerCase(),
-            message: 'User is not active  please verify email address...'
+            message: `User ${passedData.email.toLowerCase()} is not active  please verify email address...`
         });
     }
     const token = await user.generateAuthToken(user);
@@ -104,7 +101,7 @@ router.post('/login', apiLimiter, async (req, res, next) => {
         isAdmin: returnData.role === 'admin',
         isActive: returnData.isActive,
         tuitoPediaToken: token,
-        expiresIn: '86400000'
+        expiresIn: '8640000'
     });
 
 });

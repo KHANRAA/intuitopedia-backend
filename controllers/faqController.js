@@ -168,7 +168,7 @@ router.post('/', apiLimiter, auth, admin, async (req, res, next) => {
 
 router.delete('/', apiLimiter, auth, admin, async (req, res, next) => {
     const joiValidate = await validateTempUploadDeleteSchema({id: req.body});
-    if (joiValidate.error) return sendErrorResponse(res, joiValidate.error.details[0].message);
+    if (joiValidate.error) return sendErrorResponse(res, {type:'VALIDATION',message: joiValidate.error.details[0].message});
     const storage = new Storage({keyFilename: '/Volumes/workplace/personal/dews-backend/config/inside-ngo-6bd73419e1d8.json'});
     const bucketName = 'tuitopedia-assets';
     const bucket = storage.bucket(bucketName);

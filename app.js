@@ -6,14 +6,18 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const helment = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
 const chalk = require('chalk');
 
 require('./startup/logging');
 require('./startup/db')();
 
-// require('./startup/config')();
-// parse application/x-www-form-urlencoded
+app.use(helment());
+app.use(compression());
+app.use(morgan('combined'));
 app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }), bodyParser.text());
 app.use(mongoSanitize({
     replaceWith: '_'
@@ -24,7 +28,7 @@ app.use(cors({
     methods: 'GET,PUT,POST,OPTIONS,DELETE',
     allowedHeaders: 'Content-Type,Authorization,tuitopediatoken'
 }));
-app.use(xss())
+app.use(xss());
 
 
 const imageFileStorage = multer.diskStorage({

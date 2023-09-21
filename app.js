@@ -26,7 +26,7 @@ app.use(cors({
     origin: '*',
     credentials: true,
     methods: 'GET,PUT,POST,OPTIONS,DELETE',
-    allowedHeaders: 'Content-Type,Authorization,tuitopediatoken'
+    allowedHeaders: 'Content-Type,Authorization,tuitopediatoken,X-Forwarded-For'
 }));
 app.use(xss());
 

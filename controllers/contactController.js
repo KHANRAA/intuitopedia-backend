@@ -99,7 +99,7 @@ router.post('/upload', apiLimiter, async (req, res, next) => {
     const fileExt = req.file.originalname.split('.').pop();
     const uuid = uuidv4();
     const fileName = uuid + '.' + fileExt;
-    const storage = new Storage({keyFilename: '/Volumes/workplace/personal/dews-backend/config/inside-ngo-6bd73419e1d8.json'});
+    const storage = new Storage({keyFilename: `${process.env.GOOGLE_APPLICATION_CREDENTIALS}`});
     const bucketName = 'tuitopedia-assets';
     await storage.bucket(bucketName).upload(tempUploadPath, {
         gzip: true,
@@ -163,7 +163,7 @@ router.delete('/upload', apiLimiter, async (req, res, next) => {
         type: 'VALIDATION',
         message: joiValidate.error.details[0].message
     });
-    const storage = new Storage({keyFilename: '/Volumes/workplace/personal/dews-backend/config/inside-ngo-6bd73419e1d8.json'});
+    const storage = new Storage({keyFilename: `${process.env.GOOGLE_APPLICATION_CREDENTIALS}`});
     const bucketName = 'tuitopedia-assets';
     const bucket = storage.bucket(bucketName);
     // await storage.bucket(bucketName).makePublic({});

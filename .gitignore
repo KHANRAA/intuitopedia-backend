@@ -1,0 +1,4 @@
+nodemon.json
+node_modules
+build
+config

@@ -4,6 +4,9 @@
   "version": "2.0.0",
   "description": "Backend for Intuitopedia demo",
   "main": "app.js",
+  "engines": {
+    "node" :"20.6.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",

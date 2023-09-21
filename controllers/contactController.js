@@ -120,6 +120,7 @@ router.post('/upload', apiLimiter, async (req, res, next) => {
             return res.send(saveRes._id.toString());
         })
     }).catch((err) => {
+        console.log(chalk.red(err));
         next(err);
     }).finally(() => {
         fs.unlink(tempUploadPath, err => {

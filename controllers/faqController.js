@@ -125,7 +125,7 @@ router.post('/add', apiLimiter, auth, admin, async (req, res, next) => {
 });
 
 
-router.post('/', apiLimiter, auth, admin, async (req, res, next) => {
+router.post('/', auth, admin, async (req, res, next) => {
     if (!req.file) {
         console.log(chalk.red('No file received..'));
         throw new Error('No image provided.....');
@@ -167,7 +167,7 @@ router.post('/', apiLimiter, auth, admin, async (req, res, next) => {
 });
 
 
-router.delete('/', apiLimiter, auth, admin, async (req, res, next) => {
+router.delete('/', auth, admin, async (req, res, next) => {
     const joiValidate = await validateTempUploadDeleteSchema({id: req.body});
     if (joiValidate.error) return sendErrorResponse(res, {type:'VALIDATION',message: joiValidate.error.details[0].message});
     const storage = new Storage({keyFilename: `${process.env.GOOGLE_APPLICATION_CREDENTIALS}`});

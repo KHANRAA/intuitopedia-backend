@@ -90,7 +90,7 @@ router.post('/add', apiLimiter, async (req, res, next) => {
 });
 
 
-router.post('/upload', rateLimit, async (req, res, next) => {
+router.post('/upload', async (req, res, next) => {
     if (!req.file) {
         console.log(chalk.red('No file received..'));
         throw new Error('No image provided.....');
@@ -159,7 +159,7 @@ router.delete('/delete', auth, admin, validateObjectId, async (req, res, next) =
 });
 
 
-router.delete('/upload', apiLimiter, async (req, res, next) => {
+router.delete('/upload', async (req, res, next) => {
     const joiValidate = await validateTempUploadDeleteSchema({id: req.body});
     if (joiValidate.error) return sendErrorResponse(res, {
         type: 'VALIDATION',

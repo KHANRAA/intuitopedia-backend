@@ -29,7 +29,6 @@ router.post('/signup', apiLimiter, async (req, res, next) => {
             return next(new Error);
         }
         const passedData = req.body.data;
-        console.log(chalk.green('Here called akash ...'));
         const joiValidate = await validateByPassword(passedData);
         if (joiValidate.error) return sendErrorResponse(res, joiValidate.error.details[0].message);
         passedData.email = passedData.email.toLowerCase();

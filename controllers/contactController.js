@@ -22,7 +22,7 @@ router.get('/', (req, res, next) => {
 const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minutes
     max: 15,
-    message: {message: 'Nice try , please try again after sometime .....', title: 'Too Many requests'}
+    message: {message: 'Nice try , please try again after sometime ...', title: 'Too Many requests'}
 });
 
 

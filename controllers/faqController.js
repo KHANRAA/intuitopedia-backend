@@ -17,6 +17,8 @@ const {error} = require("winston");
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const rateLimit = require("express-rate-limit");
+const jwt = require("jsonwebtoken");
+const {date} = require("joi");
 
 const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minutes
@@ -37,6 +39,13 @@ router.get('/', apiLimiter, (req, res, next) => {
     return res.json({status: 200, data: 'Hi  from blog Controller'});
 });
 router.get('/all', async (req, res, next) => {
+    const token = req.header('tuitopediatoken');
+    let user;
+    let dbUser;
+    if (token) {
+        user = await jwt.verify(token, `${process.env.SECRET_KEY}`);
+        dbUser = await User.findById(user._id);
+    }
     const monthNames = ["Jan", "Feb", "Mar", "Apr",
         "May", "Jun", "Jul", "Aug",
         "Sep", "Oct", "Nov", "Dec"];
@@ -67,10 +76,13 @@ router.get('/all', async (req, res, next) => {
             }
         }
     ]);
-    const faqResults = [...faqs];
+    let faqResults = [...faqs];
     faqResults.map(faq => {
         faq.createdAt = new Date(faq.createdAt).getDate() + 'th ' + monthNames[new Date(faq.createdAt).getMonth()];
-    })
+    });
+    if (!dbUser || !dbUser.role === 'admin') {
+        faqResults = faqResults.filter((eachFaq) => eachFaq.isActive === true);
+    }
     return sendSuccessResponse(res, faqResults);
 
 });
@@ -153,6 +165,9 @@ router.put('/update', apiLimiter, auth, admin, async (req, res, next) => {
         content: faqData.content,
         category: faqData.category,
     };
+    if (faqData.isActive !== undefined) {
+        faqUpdateData.isActive = faqData.isActive;
+    }
     // const tempUpload = await TempUploads.findById(req.body.imageUrl);
     let uploadedImage = '';
     if (faqData.imageId && faqData.imageId.length === 24) {
@@ -182,11 +197,9 @@ router.put('/update', apiLimiter, auth, admin, async (req, res, next) => {
         });
         faqUpdateData.imageUrl = uploadedImage;
     }
-    console.log(chalk.green(JSON.stringify(faqData)));
-    console.log(chalk.blue(JSON.stringify(faqUpdateData)));
     await Faq.findOneAndUpdate({_id: faqData.id}, {...faqUpdateData}).then(result => {
-        console.log(chalk.cyan(result));
-        return sendSuccessResponse(res, {type: 'SUCCESS', message: 'Successfully updated FAQ data'});
+        result._doc.id = result._id;
+        return sendSuccessResponse(res, _.pick(result, ['title', 'content', 'isActive', 'category', 'imageUrl', 'id']));
     }).catch(err => {
         next(err);
     });

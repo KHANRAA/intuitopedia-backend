@@ -60,6 +60,9 @@ validateFaqUpdateSchema = async (faqData) => {
         imageId: Joi.string().min(24).allow(''),
         category: Joi.string().min(3).required(),
         id: Joi.string().min(24).required(),
+        isActive: Joi.boolean().optional(),
+        imageUrl: Joi.string().optional(),
+        createdAt: Joi.string().optional(),
     });
     try {
         return await schema.validate(faqData);

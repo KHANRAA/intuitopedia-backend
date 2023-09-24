@@ -27,6 +27,7 @@ const faqSchema = new Schema({
         type: String,
         required: true,
         minlength: 20,
+        default: 'https://storage.googleapis.com/tuitopedia-assets/images/2fb792bc-e8c3-4bf5-8c2c-4f25d69890f0.png'
     },
     category: {
         type: String,
@@ -52,6 +53,20 @@ validateFaqSchema = async (faqData) => {
     }
 };
 
+validateFaqUpdateSchema = async (faqData) => {
+    const schema = Joi.object({
+        title: Joi.string().min(5).max(200).required(),
+        content: Joi.string().min(20).required(),
+        imageId: Joi.string().min(24).allow(''),
+        category: Joi.string().min(3).required(),
+        id: Joi.string().min(24).required(),
+    });
+    try {
+        return await schema.validate(faqData);
+    } catch (err) {
+    }
+};
+
 
 validateRequiredFaqSchema = async (faqData) => {
     const schema = Joi.object({
@@ -66,3 +81,4 @@ validateRequiredFaqSchema = async (faqData) => {
 exports.Faq = Faq;
 exports.validateFaqSchema = validateFaqSchema;
 exports.validateRequiredDaSchema = validateRequiredFaqSchema;
+exports.validateFaqUpdateSchema = validateFaqUpdateSchema;

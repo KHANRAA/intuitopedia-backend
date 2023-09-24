@@ -22,7 +22,14 @@ const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minutes
     max: 15,
     validate: {xForwardedForHeader: false},
-    message: {message: 'Nice try , please try again after sometime .....', title: 'Too Many requests'}
+    message: {
+        status: 429,
+        data: {
+            type: 'RATE_LIMIT',
+            message: 'Rate Exceeded, please try again later...',
+            title: 'Too Many requests'
+        }
+    }
 });
 
 
@@ -47,7 +54,6 @@ router.get('/all', async (req, res, next) => {
                 id: '$_id',
                 _id: 0,
                 title: 1,
-                createdBy: {id: '$_id', name: 1, avatarImageUrl: 1, email: 1, role: 1, isActive: 1},
                 imageUrl: 1,
                 isActive: 1,
                 content: 1,
@@ -125,6 +131,69 @@ router.post('/add', apiLimiter, auth, admin, async (req, res, next) => {
 });
 
 
+router.put('/update', apiLimiter, auth, admin, async (req, res, next) => {
+    const user = req.user;
+    const faqData = req.body.data;
+    const joiValidate = await validateFaqUpdateSchema(faqData);
+    if (joiValidate.error) return sendErrorResponse(res, {
+        type: 'validation',
+        message: joiValidate.error.details[0].message
+    });
+
+    const dbFaq = await Faq.findById(faqData.id);
+
+    if (!dbFaq) return sendErrorResponse(res, {
+        type: 'NOT_FOUND',
+        message: 'The FAQ is not available'
+    });
+
+    const faqUpdateData = {
+        title: faqData.title,
+        createdBy: user,
+        content: faqData.content,
+        category: faqData.category,
+    };
+    // const tempUpload = await TempUploads.findById(req.body.imageUrl);
+    let uploadedImage = '';
+    if (faqData.imageId && faqData.imageId.length === 24) {
+        const imageIds = [faqData.imageId];
+
+        await Promise.all(imageIds.map(async image => {
+            console.log(chalk.red('Updating Image'));
+            const tempUploadByImage = await TempUploads.findById(image);
+            if (tempUploadByImage) {
+                const newImage = new Gallery({
+                    uploadBy: user,
+                    imageUrl: tempUploadByImage.publicUrl,
+                    deleteToken: tempUploadByImage.fileName,
+                });
+                await newImage.save().then(async (imageData) => {
+                    console.log(chalk.blue(imageData));
+                    uploadedImage = imageData.imageUrl;
+                }).then(async () => {
+                    await TempUploads.findByIdAndDelete(image);
+                });
+            }
+
+        }));
+        if (!uploadedImage || uploadedImage === '') return sendErrorResponse(res, {
+            type: 'imageId',
+            message: 'Image Not found ...'
+        });
+        faqUpdateData.imageUrl = uploadedImage;
+    }
+    console.log(chalk.green(JSON.stringify(faqData)));
+    console.log(chalk.blue(JSON.stringify(faqUpdateData)));
+    await Faq.findOneAndUpdate({_id: faqData.id}, {...faqUpdateData}).then(result => {
+        console.log(chalk.cyan(result));
+        return sendSuccessResponse(res, {type: 'SUCCESS', message: 'Successfully updated FAQ data'});
+    }).catch(err => {
+        next(err);
+    });
+
+});
+
+
 router.post('/', auth, admin, async (req, res, next) => {
     if (!req.file) {
         console.log(chalk.red('No file received..'));
@@ -169,7 +238,10 @@ router.post('/', auth, admin, async (req, res, next) => {
 
 router.delete('/', auth, admin, async (req, res, next) => {
     const joiValidate = await validateTempUploadDeleteSchema({id: req.body});
-    if (joiValidate.error) return sendErrorResponse(res, {type:'VALIDATION',message: joiValidate.error.details[0].message});
+    if (joiValidate.error) return sendErrorResponse(res, {
+        type: 'VALIDATION',
+        message: joiValidate.error.details[0].message
+    });
     const storage = new Storage({keyFilename: `${process.env.GOOGLE_APPLICATION_CREDENTIALS}`});
     const bucketName = 'tuitopedia-assets';
     const bucket = storage.bucket(bucketName);

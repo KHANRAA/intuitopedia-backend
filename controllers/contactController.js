@@ -23,7 +23,14 @@ const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minutes
     max: 15,
     validate: {xForwardedForHeader: false},
-    message: {message: 'Nice try , please try again after sometime ...', title: 'Too Many requests'}
+    message: {
+        status: 429,
+        data: {
+            type: 'RATE_LIMIT',
+            message: 'Rate Exceeded, please try again later...',
+            title: 'Too Many requests'
+        }
+    }
 });
 
 

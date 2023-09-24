@@ -60,9 +60,9 @@ validateUserRegistrationByPassword = async (userData) => {
     console.log(userData);
     const pattern = '^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$';
     const schema = Joi.object({
-        email:Joi.string().email({minDomainSegments: 2, tlds: {allow: ['com', 'in', 'org',]}}).required(),
+        email: Joi.string().email({minDomainSegments: 2, tlds: {allow: ['com', 'in', 'org',]}}).required(),
         name: Joi.string().min(3).max(40).required(),
-        password: Joi.string().min(6).max(40).pattern(new RegExp(pattern)).required(),
+        password: Joi.string().min(6).max(100).pattern(new RegExp(pattern)).required().message("Password is too weak"),
         returnSecureToken: Joi.boolean().invalid(false).required(),
     });
     try {
@@ -98,7 +98,7 @@ validatePasswordLogin = async (userData) => {
     const pattern = '^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$';
     const schema = Joi.object({
         email: Joi.string().email({minDomainSegments: 2, tlds: {allow: ['com']}}).required(),
-        password: Joi.string().min(6).max(40).pattern(new RegExp(pattern)).required(),
+        password: Joi.string().min(6).max(40).pattern(new RegExp(pattern)).message("Password is weak!").required(),
         returnSecureToken: Joi.boolean().invalid(false).required(),
     });
     try {

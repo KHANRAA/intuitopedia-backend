@@ -38,7 +38,10 @@ router.post('/signup', apiLimiter, async (req, res, next) => {
         }
         const passedData = req.body.data;
         const joiValidate = await validateByPassword(passedData);
-        if (joiValidate.error) return sendErrorResponse(res, joiValidate.error.details[0].message);
+        if (joiValidate.error) return sendErrorResponse(res, {
+            type: 'VALIDATION',
+            message: joiValidate.error.details[0].message
+        });
         passedData.email = passedData.email.toLowerCase();
         const salt = await bcrypt.genSalt(10);
         console.log(chalk.red(`Received signup request with : ${passedData}`));
